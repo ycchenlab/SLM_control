@@ -10,6 +10,8 @@ from holoeye import slmdisplaysdk
 import time
 import numpy as np
 from cv2 import imread, IMREAD_GRAYSCALE
+import matplotlib.pyplot as plt
+from upload_grating import grating
 
 # Initialize the SLM library
 slm = slmdisplaysdk.SLMInstance()
@@ -40,14 +42,28 @@ print("dataHeight = " + str(dataHeight))
 # data = np.zeros((dataWidth, dataHeight)) 
 data = slmdisplaysdk.createFieldSingle(dataWidth, dataHeight)
 
-# Import the DOE
-s = s = 'C:/Users/ycche/python script/SLM/SLM_control/DOE.png'
-S = imread(s, IMREAD_GRAYSCALE)
-h = np.size(S,0)
-w = np.size(S,1)
 
+# Import the DOE
+s = 'C:/Users/ycche/git repo/SLM_control/Image/DOE_0825_mGS.png'
+S = imread(s, IMREAD_GRAYSCALE)
+#S = S/np.max(S)
+hy = np.size(S,0)
+wx = np.size(S,1)
+# ima = np.zeros([1080, 1920])
+# ima[int((1080-hy)/2-1):int(1080-(1080-hy)/2-1) , int((1920-wx)/2-1):int(1920-(1920-wx)/2-1)] = S
+
+Nx = wx
+Ny = hy
+grate = grating(Ny, Nx, px = 50, py = 0, dis_x = 0, dis_y = 0)
+
+# gra = np.zeros([1080, 1920])
+# gra[int((1080-Ny)/2-1):int(1080-(1080-Ny)/2-1) , int((1920-Nx)/2-1):int(1920-(1920-Nx)/2-1)] = grate
+
+image = S + grate
+image = image/np.max(image)*255
+plt.imshow(image)
 # Show data on SLM:
-error = slm.showData(S)
+error = slm.showData(image)
 assert error == slmdisplaysdk.ErrorCode.NoError, slm.errorString(error)
 
 # Wait until the SLM process is closed:
